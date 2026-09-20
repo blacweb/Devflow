@@ -1,0 +1,10 @@
+const r = require('express').Router();
+const { protect } = require('../middleware/auth');
+const taskAccess = require('../middleware/taskAccess');
+const vid = require('../middleware/validateId');
+const T = require('../controllers/taskController');
+r.use(protect); r.param('id', vid);
+r.route('/:id').patch(taskAccess, T.update).delete(taskAccess, T.remove);
+r.patch('/:id/move', taskAccess, T.move);
+r.route('/:id/comments').get(taskAccess, T.comments).post(taskAccess, T.addComment);
+module.exports = r;

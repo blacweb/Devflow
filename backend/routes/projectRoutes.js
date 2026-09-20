@@ -1,0 +1,17 @@
+const r = require('express').Router();
+const { protect } = require('../middleware/auth');
+const access = require('../middleware/projectAccess');
+const vid = require('../middleware/validateId');
+const P = require('../controllers/projectController'), T = require('../controllers/taskController');
+const I = require('../controllers/insightsController'), G = require('../controllers/githubController');
+r.use(protect); r.param('id', vid); r.param('userId', vid);
+r.route('/').get(P.list).post(P.create);
+r.route('/:id').get(access(), P.get).patch(access('admin'), P.update).delete(access('owner'), P.remove);
+r.post('/:id/members', access('admin'), P.addMember);
+r.route('/:id/members/:userId').patch(access('owner'), P.setRole).delete(access('admin'), P.removeMember);
+r.route('/:id/tasks').get(access(), T.list).post(access(), T.create);
+r.get('/:id/activity', access(), I.activity);
+r.get('/:id/messages', access(), I.messages);
+r.get('/:id/analytics', access(), I.projectAnalytics);
+r.route('/:id/github').get(access(), G.get).put(access('admin'), G.connect).delete(access('admin'), G.disconnect);
+module.exports = r;
